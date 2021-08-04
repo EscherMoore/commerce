@@ -1,0 +1,55 @@
+{% extends "auctions/layout.html" %}
+
+{% load static %}
+
+{% block title %}
+    Results
+{% endblock %}
+
+{% block body %}
+    {% if is_results == True %}
+        <h2 id="listing">Results:</h2>
+        {% for result in results %}
+            <div id="listing" class="border border-secondary rounded">
+                <a href="{% url 'listing' result.id %}" id="inspect">
+                {% if result.image %}
+                    <img id="listing_image" class="rounded" src="{{ result.image.url }}" alt="Image Not Found" align="left">
+                {% endif %}
+                {% if result.link %}
+                    <img id="listing_image" class="rounded" src="{{ result.link }}" alt="Image Not Found" align="left">
+                {% endif %}
+                <div id="listing_text" align="left">
+                    <h3><strong>{{ result.title }}</strong></h3>
+                    {% if result.is_closed %}
+                        <div>
+                            {% if result.bids.last %}
+                                {% if result.bids.last.bidder == request.user %}
+                                    <h5 style="color: #00ba37;"><strong>Congradulations! You won the bid for {{ result.bids.last }}</strong></h5>
+                                {% else %}
+                                    <h5 style="color: #FC0000;"><strong>Listing Closed! Winning Bid: {{ result.bids.last }}</strong></h5>
+                                {% endif %}
+                            {% else %}
+                                <h5 style="color: #FC0000;"><strong>The seller closed the listing before bids could start.</strong></h5>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div>
+                            {% if result.bids.last %}
+                                <h5><strong>Current Bid: {{ result.bids.last }}</strong></h5>
+                            {% else %}
+                                <h5><strong>Starting Bid: ${{ result.starting_bid }}</strong></h5>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <div id="description">
+                        {{ result.body|truncatechars:100 }}
+                    </div>
+                    <h5 style="color: grey;">Created: {{ result.date_created }}</h5>
+                </div>
+                </a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <h2 id="listing">No Results Found...<h3>
+    {% endif %}
+{% endblock %}

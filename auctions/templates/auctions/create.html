@@ -1,0 +1,56 @@
+{% extends "auctions/layout.html" %}
+
+{% load static %}
+
+{% block title %}
+    Create
+{% endblock %}
+
+{% block body %}
+<div id="create">
+    <h2>Create Listing</h2>
+        <form action="{% url 'create' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="col-3">
+                    <label for="TitleTextField">Title:</label>
+                    <input id="TitleTextField" name="title" required type="text" class="form-control">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-3">
+                    <label for="DescriptionTextarea">Description:</label>
+                    <textarea rows="5" id="DescriptionTextarea" name="body" required type="textarea" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-2">
+                    <label for="StartingBid">Starting Bid:</label>
+                    <input id="StartingBid" name="starting_bid" required type="number" class="form-control">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-2">
+                    <label for="CatagoryChoice">Category:</label>
+                    <select multiple class="form-control" name="category" id="CatagoryChoice">
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-2">
+                    <label for="ImageLink">Add Image Link: </label>
+                    <input name="link" type="text" class="form-control" id="ImageLink">
+                </div>
+            </div>
+            <h5>Or...</h5>
+            <div id="image_form">
+                <label for="ImageField">Source Image File: </label>
+                <input name="image" type="file" class="form-control-file" id="ImageField">
+            </div>
+            <input type="submit" class="btn btn-primary">
+        </form>
+</div>
+{% endblock %}

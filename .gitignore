@@ -1,0 +1,4 @@
+env/
+media/listing_images/*
+__pycache__/
+db.sqlite3

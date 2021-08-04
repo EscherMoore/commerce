@@ -1,0 +1,39 @@
+{% extends "auctions/layout.html" %}
+
+{% load static %}
+
+{% block title %}
+    Active Listings
+{% endblock %}
+
+{% block body %}
+    <h2 id="listing">Active Listings</h2>
+        
+    {% for listing in listings %}
+        <div id="listing" class="border border-secondary rounded">
+            <a href="{% url 'listing' listing.id %}" id="inspect">
+            {% if listing.image %}
+                <img id="listing_image" class="rounded" src="{{ listing.image.url }}" alt="Image Not Found" align="left">
+            {% endif %}
+            {% if listing.link %}
+                <img id="listing_image" class="rounded" src="{{ listing.link }}" alt="Image Not Found" align="left">
+            {% endif %}
+                <div id="listing_text" align="left">
+                <h3><strong>{{ listing.title }}</strong></h3>
+                    <div>
+                        {% if listing.bids.last %}
+                        <h5><strong>Current Bid:</strong> {{ listing.bids.last }}</h5>
+                        {% else %}
+                        <h5><strong>Starting Bid:</strong> ${{ listing.starting_bid }}</h5>
+                        {% endif %}
+                    </div>
+                    <div id="description">
+                        {{ listing.body|truncatechars:100 }}
+                    </div>
+                    <h5 style="color: grey;">Created: {{ listing.date_created }}</h5>
+                </div>
+            </a>
+        </div>
+    {% endfor %}
+
+{% endblock %}

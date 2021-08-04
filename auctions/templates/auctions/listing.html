@@ -1,0 +1,160 @@
+{% extends "auctions/layout.html" %}
+
+{% load static %}
+
+{% block title %}
+    {{ listing.title }}
+{% endblock %}
+
+{% block body %}
+    <div id="inspect_listing">
+        <h1><strong>{{ listing.title }}</strong></h1>
+        {% if user.is_authenticated %}
+            <div align="top">
+                <strong>Watchlist</strong>
+                {% if has_watchlist_item == False %}
+                    <form action="{% url 'add_wishlist' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <input class="btn btn-primary btn-sm" type="submit" name="add_wishlist" value="Add">
+                    </form>
+                {% else %}
+                    <form action="{% url 'remove_wishlist' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <input class="btn btn-secondary btn-sm" type="submit" name="remove_wishlist" value="Remove">
+                    </form>
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if listing.link %}
+            <div>
+                <img class="rounded" id="inspect_listing_image" src="{{ listing.link }}" align="top">
+            </div>
+        {% endif %}
+        {% if listing.image %}
+            <div>
+                <img class="rounded" id="inspect_listing_image" src="{{ listing.image.url }}" align="top">
+            </div>
+        {% endif %}
+        <div id="description">
+            <h5></strong> {{ listing.body }}</h5>
+        </div>
+        {% if listing.is_closed == False %}
+            {% if listing.author == request.user %}
+                <form action="{% url 'close_listing' listing.id %}" method="post">
+                    {% csrf_token %}
+                    <button style="margin: 5px;"class="btn btn-warning" type="submit" name="is_closed" value="Close Listing">Close Listing</button>
+                </form>
+            {% endif %}
+        {% endif %}
+        {% if listing.is_closed == False %}
+            {% if current_bid %}
+                <div>
+                    <h3><strong>Current Bid: {{ current_bid }}</strong></h3>
+                </div>
+                {% else %}
+                <div>
+                    <h3><strong>Starting Bid: ${{ listing.starting_bid }}</strong></h3>
+                </div>
+            {% endif %}
+        {% else %}
+            {% if listing.is_closed %}
+                <div>
+                    {% if listing.bids.last %}
+                        {% if listing.bids.last.bidder == request.user %}
+                            <h2 style="color: #00ba37;"><strong>Congradulations! You won the bid for {{ current_bid }}</strong></h2>
+                        {% else %}
+                            <h5 style="color: #FC0000;"><strong>Winning Bid: {{ listing.bids.last }}</strong></h5>
+                        {% endif %}
+                    {% else %}
+                        <h5 style="color: #FC0000;"><strong>The seller closed the listing before bids could start.</strong></h5>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div>
+                    {% if listing.bids.last %}
+                        <h5><strong>Current Bid: {{ listing.bids.last }}</strong></h5>
+                    {% else %}
+                        <h5><strong>Starting Bid: {{ listing.author }} - ${{ listing.starting_bid }}</strong></h5>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endif %}
+        {% if user.is_authenticated %}
+            {% if listing.is_closed == False %}
+                {% if bid_count == 1 %}
+                    {{ bid_count }} bid so far.
+                {% else %}
+                    {{ bid_count }} bids so far.
+                {% endif %}
+                {% if request.user == current_bid.bidder %}
+                    Your bid is the current bid.
+                {% endif %}
+                {% if message %}
+                    <h6 id="message">{{ message }}</h6>
+                {% endif %}
+            <div>
+                <form class="form-inline" action="{% url 'listing' listing.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group mx-sm-3 mb-2">
+                        <input class="form-group mx-sm mb-2" required type="number" name="bid">
+                    </div>
+                    <input type="submit" value="Place Bid" class="btn btn-primary btn-sm mb-3">
+                </form>
+            </div>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'login' %}">Make Bid</a>
+        {% endif %}
+        <h2><strong>Details</strong></h2>
+        <ul>
+            <li>Listed by: {{ listing.author }}</li>
+            {% if categories %}
+                <li>Category:
+                {% for category in categories %}
+                    {{ category }}</li>
+                {% endfor %}
+            {% else %}
+                <li>Category: No Category Listed</li>
+            {% endif %}
+            </strong>
+        </ul>
+        <div>
+        {% if comments %}
+            <strong>Comments:</strong>
+            {% for comment in comments %}
+                <div id="comment">
+                    <div>
+                        <h4><strong>{{ comment.author }}</strong></h4>
+                    </div>
+                    <div>
+                        {{ comment.body }}
+                    </div>
+                    <div>
+                        <strong><i>{{ comment.date_commented}}</i></strong>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div id="no_comments">
+                <h4><strong>No Comments</strong></h4>
+            </div>
+        {% endif %}
+        </div>
+        {% if user.is_authenticated %}
+            <div>
+                <form class="form-group" action="{% url 'add_comment' listing.id %}" method="post">
+                    {% csrf_token %} 
+                    <div class="col-3">
+                        <strong><label for="CommentBody">Add Comment:</label></strong>
+                        <div class="form-group">
+                            <textarea rows="5" id="CommentBody" required type="textarea" name="body" class="form-control"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </form>
+            </div> 
+        {% else %}
+            <a href="{% url 'login' %}">Add Comment</a>
+        {% endif %}
+    </div>
+{% endblock %}

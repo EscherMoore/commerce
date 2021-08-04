@@ -1,0 +1,63 @@
+{% extends "auctions/layout.html" %}
+
+{% load static %}
+
+{% block title %}
+    Watchlist
+{% endblock %}
+
+{% block body %}
+    <h2 id="listing">Watchlist</h2> 
+    {% for item in wishlist %}
+        <div id="listing" class="border border-secondary rounded">
+            <a href="{% url 'listing' item.id %}" id="inspect">
+            {% if item.image %}
+                <img id="listing_image" src="{{ item.image.url }}" alt="Image Not Found" align="left">
+            {% endif %}
+            {% if item.link %}
+                <img id="listing_image" class="rounded" src="{{ item.link }}" alt="Image Not Found" align="left">
+            {% endif %}
+                <div id="listing_text" align="left">
+                    <h3><strong>{{ item.title }}</strong></h3>
+                        {% if item.is_closed %}
+                            <div>
+                                {% if item.bids.last %}
+                                    {% if item.bids.last.bidder == request.user %}
+                                        <h5 style="color: #00ba37;"><strong>Congradulations! You won the bid for {{ item.bids.last }}</strong></h5>
+                                    {% else %}
+                                        <h5 style="color: #FC0000;"><strong>Listing Closed! Winning Bid: {{ item.bids.last }}</strong></h5>
+                                    {% endif %}
+                                {% else %}
+                                    <h5 style="color: #FC0000;"><strong>Listing Closed! The seller closed the listing before bids could start.</strong></h5>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div>
+                                {% if item.bids.last %}
+                                    <h5><strong>Current Bid: {{ item.bids.last }}</strong></h5>
+                                {% else %}
+                                    <h5><strong>Starting Bid:</strong> ${{ item.starting_bid }}</h5>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    <div id="description">
+                        {{ item.body|truncatechars:100 }}
+                    </div>
+                    <h5 style="color: grey;">Created: {{ item.date_created }}</h5>
+                </div>
+            </a>
+            <div class="align-left">
+                <div>
+                    <div class="col-6 col-sm-1">
+                        <form action="{% url 'remove_wishlist_from_wishlist_page' item.id %}" method="post">
+                            {% csrf_token %}
+                            <input class="btn btn-secondary btn-sm" type="submit" name="remove_wishlist" value="Remove">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+
